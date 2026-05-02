@@ -116,6 +116,7 @@
             animation: floatAndFade 12s infinite ease-in-out;
             color: rgba(255, 200, 200, 0.7);
             text-shadow: 0 0 8px rgba(255, 120, 120, 0.4);
+            transition: left 0.2s ease-out, top 0.2s ease-out;
         }
 
         @keyframes floatAndFade {
@@ -126,16 +127,14 @@
             100% { opacity: 0; transform: translateY(-100px) rotate(8deg); }
         }
 
-        /* ТОЛЬКО ДЛЯ ТЕЛЕФОНОВ — центрирование и ограничение */
+        /* ТОЛЬКО ДЛЯ ТЕЛЕФОНОВ — мягкое центрирование с люфтом */
         @media (max-width: 768px) {
             .whisper {
-                left: 10% !important;
-                width: 80% !important;
-                text-align: center;
                 font-size: 5vw !important;
                 white-space: normal;
                 word-break: keep-all;
-                line-height: 1.3;
+                max-width: 80vw;
+                text-align: center;
             }
         }
 
@@ -187,6 +186,7 @@
 
 <script>
     (function() {
+        // ========== ТАЙМЕР ==========
         function getTargetDate() {
             let target = new Date(2026, 4, 8, 23, 59, 0);
             if (target <= new Date()) {
@@ -217,6 +217,7 @@
         updateTimer();
         let timerInterval = setInterval(updateTimer, 1000);
 
+        // ========== ТЕКСТОВЫЕ ГЛЮКИ ==========
         const glitchedVariants = [
             "Т1К-Т4К", "Т!К-Т@К", "ТИХ-ТАХ", "ТИК-Т??", "*******",
             "Тік-Так", "TIK-TAK", "ТИК-ГАК", "3ИК-ТАК",
@@ -242,6 +243,7 @@
             if (Math.random() < 0.9) applyTextGlitch();
         }, 6000);
 
+        // ========== ВИЗУАЛЬНЫЙ ГЛИТЧ ==========
         function applyVisualGlitch() {
             timerEl.classList.add('glitch-active');
             mainTextEl.classList.add('glitch-active');
@@ -265,6 +267,7 @@
             applyTextGlitch();
         }
 
+        // ГЛИТЧ ПО КЛАВИШЕ G
         document.addEventListener('keydown', (e) => {
             if (e.key === 'g' || e.key === 'G') {
                 fullGlitch();
@@ -278,11 +281,12 @@
             }
         });
 
-        // ГЛИТЧ С ПЕРВОГО КАСАНИЯ (один тап)
+        // ГЛИТЧ С ПЕРВОГО КАСАНИЯ (один тап) — ДЛЯ ТЕЛЕФОНОВ
         document.body.addEventListener('touchstart', (e) => {
             fullGlitch();
         });
 
+        // ========== ИНВЕРСИЯ ==========
         setInterval(() => {
             document.documentElement.style.filter = 'invert(1)';
             setTimeout(() => {
@@ -290,6 +294,7 @@
             }, 400);
         }, 10000);
 
+        // ========== ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР ==========
         let frozen = false;
         let frozenTimeout;
 
@@ -309,6 +314,7 @@
             }
         });
 
+        // ========== ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ ==========
         window.addEventListener('beforeunload', (e) => {
             const message = "Таймер продолжает тикать. Ты уверена?";
             e.preventDefault();
@@ -316,12 +322,14 @@
             return message;
         });
 
+        // ========== КЛИК ПО ДАТЕ ==========
         const footer = document.getElementById('footerDate');
         footer.addEventListener('click', (e) => {
             e.stopPropagation();
             alert("тик-так, тик-так, тик-так");
         });
 
+        // ========== ШЁПОТЫ (С ОГРАНИЧЕНИЕМ КОЛИЧЕСТВА) ==========
         const phrases = [
             "ты не пришла", "я ждал", "я существую?", "тебя нет", "тишина", "пустота", "почему так больно?", "где ты?..",
             "что я сделал не так?", "безразличие", "разочарование", "гордыня", "эгоизм", "равнодушие",
@@ -330,7 +338,7 @@
 
         const container = document.getElementById('whispersContainer');
         let activeWhispers = 0;
-        const MAX_WHISPERS = 15;
+        const MAX_WHISPERS = 5;
 
         function createWhisper(text) {
             activeWhispers++;
@@ -350,11 +358,12 @@
             });
         }
 
+        // появление фраз реже и с ограничением по количеству
         setInterval(() => {
             if (activeWhispers < MAX_WHISPERS) {
                 createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
             }
-        }, 1500);
+        }, 2200);
 
         for (let i = 0; i < 5; i++) {
             setTimeout(() => {
@@ -364,6 +373,7 @@
             }, i * 300);
         }
 
+        // ========== ЗАТЕМНЕНИЕ ПРИ БЕЗДЕЙСТВИИ ==========
         const dimOverlay = document.getElementById('dimOverlay');
         let inactivityTimer;
 
@@ -379,6 +389,57 @@
             document.addEventListener(event, resetInactivityTimer);
         });
         resetInactivityTimer();
+
+        // ========== ФРАЗЫ УБЕГАЮТ ОТ КУРСОРА/ПАЛЬЦА ==========
+        let mouseX = -10000, mouseY = -10000;
+
+        function updateMousePosition(e) {
+            if (e.touches) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            } else {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        }
+
+        document.addEventListener('mousemove', updateMousePosition);
+        document.addEventListener('touchmove', updateMousePosition);
+        document.addEventListener('touchstart', updateMousePosition);
+
+        function escapeFromCursor() {
+            const whispers = document.querySelectorAll('.whisper');
+            const REPULSION_RADIUS = 150;
+            const ESCAPE_FORCE = 80;
+            
+            whispers.forEach(whisper => {
+                const rect = whisper.getBoundingClientRect();
+                const whisperCenterX = rect.left + rect.width / 2;
+                const whisperCenterY = rect.top + rect.height / 2;
+                
+                const dx = whisperCenterX - mouseX;
+                const dy = whisperCenterY - mouseY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < REPULSION_RADIUS) {
+                    const angle = Math.atan2(dy, dx);
+                    const force = (REPULSION_RADIUS - distance) / REPULSION_RADIUS * ESCAPE_FORCE;
+                    const moveX = Math.cos(angle) * force;
+                    const moveY = Math.sin(angle) * force;
+                    
+                    let newLeft = parseFloat(whisper.style.left) + (moveX / window.innerWidth * 100);
+                    let newTop = parseFloat(whisper.style.top) + (moveY / window.innerHeight * 100);
+                    
+                    newLeft = Math.min(85, Math.max(5, newLeft));
+                    newTop = Math.min(85, Math.max(5, newTop));
+                    
+                    whisper.style.left = newLeft + '%';
+                    whisper.style.top = newTop + '%';
+                }
+            });
+        }
+
+        setInterval(escapeFromCursor, 50);
     })();
 </script>
 </body>
