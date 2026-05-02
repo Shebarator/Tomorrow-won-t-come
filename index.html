@@ -296,7 +296,7 @@ function applyGlitch() {
 
 
 setInterval(() => {
-    if (abs(Math.random()) >= 0) applyGlitch();
+    if (Math.random() < 2) applyGlitch();
 }, 5000);
 
 
@@ -390,6 +390,53 @@ window.addEventListener('DOMContentLoaded', function() {
         }, 4000);
     });
 });
+
+setInterval(() => {
+    if (Math.random() < 0.15) {
+        document.body.style.filter = 'invert(1)';
+        setTimeout(() => {
+            document.body.style.filter = '';
+        }, 250);
+    }
+}, 25000);
+
+const mainText = document.querySelector('.main-text');
+setInterval(() => {
+    if (Math.random() < 0.2) {
+        const original = 'ТИК-ТАК';
+        let glitched = '';
+        for (let i = 0; i < original.length; i++) {
+            if (Math.random() < 0.3) {
+                glitched += String.fromCharCode(65 + Math.random() * 33);
+            } else {
+                glitched += original[i];
+            }
+        }
+        mainText.innerText = glitched;
+        setTimeout(() => {
+            mainText.innerText = original;
+        }, 400);
+    }
+}, 12000);
+
+let idleTimer;
+document.addEventListener('mousemove', () => {
+    clearTimeout(idleTimer);
+    document.querySelectorAll('.whisper').forEach(w => {
+        w.style.color = 'rgba(255,255,255,0.25)';
+    });
+    idleTimer = setTimeout(() => {
+        document.querySelectorAll('.whisper').forEach(w => {
+            w.style.color = 'rgba(255,0,0,0.4)';
+        });
+    }, 10000);
+});
+
+window.addEventListener('beforeunload', (e) => {
+    e.preventDefault();
+    e.returnValue = '';
+});
+
 </script>
 <div class="secret-message" id="secretMsg">Ты здесь. Каждый раз — как пощёчина. Тик-так.</div>
 </body>
