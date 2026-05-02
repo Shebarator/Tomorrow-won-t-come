@@ -384,7 +384,7 @@
 
         const container = document.getElementById('whispersContainer');
         let activeWhispers = 0;
-        const MAX_WHISPERS = 18;
+        const MAX_WHISPERS = 22;
 
         function createWhisper(text) {
             activeWhispers++;
@@ -418,7 +418,7 @@
                 if (activeWhispers < MAX_WHISPERS) {
                     createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
                 }
-            }, i * 200);
+            }, i * 150);
         }
 
         // ========== ЗАТЕМНЕНИЕ ПРИ БЕЗДЕЙСТВИИ ==========
