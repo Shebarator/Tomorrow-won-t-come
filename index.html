@@ -113,21 +113,37 @@
             pointer-events: none;
             font-size: 4vw;
             opacity: 0;
-            animation: floatAndFade 12s infinite ease-in-out;
+            animation: floatUp 10s ease-in-out forwards;
             color: rgba(255, 200, 200, 0.7);
             text-shadow: 0 0 8px rgba(255, 120, 120, 0.4);
             transition: left 0.2s ease-out, top 0.2s ease-out;
         }
 
-        @keyframes floatAndFade {
-            0% { opacity: 0; transform: translateY(0) rotate(-5deg); }
-            15% { opacity: 0.8; transform: translateY(-10px) rotate(0deg); }
-            50% { opacity: 0.5; transform: translateY(-30px) rotate(3deg); }
-            85% { opacity: 0.3; transform: translateY(-60px) rotate(5deg); }
-            100% { opacity: 0; transform: translateY(-100px) rotate(8deg); }
+        /* новая анимация — только вверх, без горизонтального улёта */
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(0) rotate(-3deg);
+            }
+            15% {
+                opacity: 0.8;
+                transform: translateY(-10px) rotate(0deg);
+            }
+            50% {
+                opacity: 0.5;
+                transform: translateY(-40px) rotate(2deg);
+            }
+            85% {
+                opacity: 0.3;
+                transform: translateY(-80px) rotate(4deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) rotate(6deg);
+            }
         }
 
-        /* ТОЛЬКО ДЛЯ ТЕЛЕФОНОВ — мягкое центрирование с люфтом */
+        /* ТОЛЬКО ДЛЯ ТЕЛЕФОНОВ */
         @media (max-width: 768px) {
             .whisper {
                 font-size: 5vw !important;
@@ -135,6 +151,30 @@
                 word-break: keep-all;
                 max-width: 80vw;
                 text-align: center;
+                animation: floatUpPhone 10s ease-in-out forwards;
+            }
+            
+            @keyframes floatUpPhone {
+                0% {
+                    opacity: 0;
+                    transform: translateY(0) rotate(-2deg);
+                }
+                15% {
+                    opacity: 0.8;
+                    transform: translateY(-5px);
+                }
+                50% {
+                    opacity: 0.5;
+                    transform: translateY(-20px);
+                }
+                85% {
+                    opacity: 0.3;
+                    transform: translateY(-40px);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateY(-60px);
+                }
             }
         }
 
@@ -267,7 +307,6 @@
             applyTextGlitch();
         }
 
-        // ГЛИТЧ ПО КЛАВИШЕ G
         document.addEventListener('keydown', (e) => {
             if (e.key === 'g' || e.key === 'G') {
                 fullGlitch();
@@ -281,7 +320,7 @@
             }
         });
 
-        // ГЛИТЧ С ПЕРВОГО КАСАНИЯ (один тап) — ДЛЯ ТЕЛЕФОНОВ
+        // ГЛИТЧ С ПЕРВОГО КАСАНИЯ
         document.body.addEventListener('touchstart', (e) => {
             fullGlitch();
         });
@@ -310,7 +349,7 @@
                     timerEl.style.opacity = '1';
                     timerEl.style.filter = '';
                     frozen = false;
-                }, 5000);
+                }, 3000);
             }
         });
 
@@ -329,7 +368,7 @@
             alert("тик-так, тик-так, тик-так");
         });
 
-        // ========== ШЁПОТЫ (С ОГРАНИЧЕНИЕМ КОЛИЧЕСТВА) ==========
+        // ========== ШЁПОТЫ ==========
         const phrases = [
             "ты не пришла", "я ждал", "я существую?", "тебя нет", "тишина", "пустота", "почему так больно?", "где ты?..",
             "что я сделал не так?", "безразличие", "разочарование", "гордыня", "эгоизм", "равнодушие",
@@ -338,18 +377,21 @@
 
         const container = document.getElementById('whispersContainer');
         let activeWhispers = 0;
-        const MAX_WHISPERS = 5;
+        const MAX_WHISPERS = 18;
 
         function createWhisper(text) {
             activeWhispers++;
             const span = document.createElement('div');
             span.className = 'whisper';
             span.textContent = text;
-            span.style.left = Math.random() * 80 + 10 + '%';
-            span.style.top = Math.random() * 70 + 15 + '%';
+            
+            // безопасная зона: от 10% до 85%, чтобы не улетали за края
+            span.style.left = (10 + Math.random() * 75) + '%';
+            span.style.top = (5 + Math.random() * 70) + '%';
+            
             const size = 1.2 + Math.random() * 2;
             span.style.fontSize = size + 'rem';
-            span.style.animationDuration = (10 + Math.random() * 8) + 's';
+            span.style.animationDuration = (8 + Math.random() * 6) + 's';
             span.style.animationDelay = Math.random() * 2 + 's';
             container.appendChild(span);
             span.addEventListener('animationend', () => {
@@ -358,19 +400,18 @@
             });
         }
 
-        // появление фраз реже и с ограничением по количеству
         setInterval(() => {
             if (activeWhispers < MAX_WHISPERS) {
                 createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
             }
-        }, 2200);
+        }, 1000);
 
         for (let i = 0; i < 5; i++) {
             setTimeout(() => {
                 if (activeWhispers < MAX_WHISPERS) {
                     createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
                 }
-            }, i * 300);
+            }, i * 200);
         }
 
         // ========== ЗАТЕМНЕНИЕ ПРИ БЕЗДЕЙСТВИИ ==========
@@ -382,7 +423,7 @@
             dimOverlay.classList.remove('active');
             inactivityTimer = setTimeout(() => {
                 dimOverlay.classList.add('active');
-            }, 30000);
+            }, 60000);
         }
 
         ['mousemove', 'click', 'touchstart', 'keydown'].forEach(event => {
@@ -409,8 +450,8 @@
 
         function escapeFromCursor() {
             const whispers = document.querySelectorAll('.whisper');
-            const REPULSION_RADIUS = 150;
-            const ESCAPE_FORCE = 80;
+            const REPULSION_RADIUS = 130;
+            const ESCAPE_FORCE = 60;
             
             whispers.forEach(whisper => {
                 const rect = whisper.getBoundingClientRect();
@@ -430,6 +471,7 @@
                     let newLeft = parseFloat(whisper.style.left) + (moveX / window.innerWidth * 100);
                     let newTop = parseFloat(whisper.style.top) + (moveY / window.innerHeight * 100);
                     
+                    // жёсткие границы: фразы не выходят за пределы 5% - 85%
                     newLeft = Math.min(85, Math.max(5, newLeft));
                     newTop = Math.min(85, Math.max(5, newTop));
                     
