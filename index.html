@@ -296,7 +296,7 @@ function applyGlitch() {
 
 
 setInterval(() => {
-    if (Math.random() < 1) applyGlitch();
+    if (Math.random() < 2) applyGlitch();
 }, 5000);
 
 
@@ -324,6 +324,72 @@ if (footer && secretDiv) {
         }, 4000);
     });
 }
+
+window.addEventListener('DOMContentLoaded', function() {
+    let footer = document.querySelector('.footer-date');
+    let secretDiv = document.getElementById('secretMsg');
+
+    if (!footer) {
+        console.log('footer-date не найден, создаю');
+        footer = document.createElement('div');
+        footer.className = 'footer-date';
+        footer.innerText = '8 МАЯ 23:59';
+        document.body.appendChild(footer);
+    }
+
+    if (!secretDiv) {
+        console.log('secretMsg не найден, создаю');
+        secretDiv = document.createElement('div');
+        secretDiv.className = 'secret-message';
+        secretDiv.id = 'secretMsg';
+        secretDiv.innerText = 'Ты здесь. Каждый раз — как пощёчина. Тик-так.';
+        document.body.appendChild(secretDiv);
+    }
+
+    if (!document.querySelector('#secretMsgStyle')) {
+        const style = document.createElement('style');
+        style.id = 'secretMsgStyle';
+        style.textContent = `
+            .secret-message {
+                position: fixed;
+                bottom: 60px;
+                right: 20px;
+                background: rgba(0,0,0,0.85);
+                border-left: 3px solid #ff3366;
+                padding: 10px 15px;
+                max-width: 240px;
+                font-size: 0.8rem;
+                color: #eee;
+                font-family: monospace;
+                z-index: 999;
+                opacity: 0;
+                transition: opacity 0.4s;
+                pointer-events: none;
+                border-radius: 4px;
+                backdrop-filter: blur(4px);
+            }
+            .footer-date {
+                cursor: pointer;
+                position: fixed;
+                bottom: 15px;
+                right: 20px;
+                z-index: 30;
+                color: rgba(255,255,255,0.5);
+                font-family: monospace;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    footer.style.cursor = 'pointer';
+    footer.addEventListener('click', function(e) {
+        e.stopPropagation();
+        secretDiv.style.opacity = '1';
+        setTimeout(function() {
+            secretDiv.style.opacity = '0';
+        }, 4000);
+    });
+});
 </script>
 <div class="secret-message" id="secretMsg">Ты здесь. Каждый раз — как пощёчина. Тик-так.</div>
 </body>
