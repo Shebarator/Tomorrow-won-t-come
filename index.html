@@ -330,7 +330,7 @@
 
         const container = document.getElementById('whispersContainer');
         let activeWhispers = 0;
-        const MAX_WHISPERS = 5;
+        const MAX_WHISPERS = 15;
 
         function createWhisper(text) {
             activeWhispers++;
@@ -354,7 +354,7 @@
             if (activeWhispers < MAX_WHISPERS) {
                 createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
             }
-        }, 2200);
+        }, 1500);
 
         for (let i = 0; i < 5; i++) {
             setTimeout(() => {
