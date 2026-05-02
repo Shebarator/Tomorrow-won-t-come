@@ -296,7 +296,7 @@ function applyGlitch() {
 
 
 setInterval(() => {
-    if (Math.random() < 2) applyGlitch();
+    if (abs(Math.random()) >= 0) applyGlitch();
 }, 5000);
 
 
