@@ -296,12 +296,12 @@ function applyGlitch() {
 
 
 setInterval(() => {
-    if (Math.random() < 0.6) applyGlitch();
-}, 6000);
+    if (Math.random() < 1) applyGlitch();
+}, 5000);
 
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'g' || e.key === 'G') {
+    if (e.key === 'g' || e.key === 'G' || e.key == 'п' || e.key == 'П') {
         applyGlitch();
         timerEl.style.transform = 'translate(2px, -1px)';
         mainTextEl.style.transform = 'translate(-1px, 1px)';
