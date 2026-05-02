@@ -9,100 +9,43 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow: hidden;
         }
 
         body {
+            width: 100vw;
+            height: 100vh;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
-            font-family: 'Courier New', 'Monaco', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', monospace;
             position: relative;
+            overflow: hidden;
         }
 
-        /* шум */
-        .noise {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-            background: repeating-radial-gradient(circle at 20% 30%, rgba(0,0,0,0), rgba(0,0,0,0.08) 1px, transparent 2px);
-            opacity: 0.25;
-            animation: staticNoise 0.15s infinite;
-        }
-
-        @keyframes staticNoise {
-            0% { background-position: 0 0; opacity: 0.15; }
-            100% { background-position: 15px 25px; opacity: 0.3; }
-        }
-
-        /* главный контейнер — строго по центру */
-        .center-wrapper {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
+        .main {
             text-align: center;
-            z-index: 20;
-            padding: 20px;
-            pointer-events: none;
-        }
-
-        /* чтобы клик по дате работал */
-        .center-wrapper {
-            pointer-events: none;
-        }
-        .center-wrapper * {
-            pointer-events: auto;
+            z-index: 10;
         }
 
         .main-text {
-            font-size: clamp(1.8rem, 10vw, 4rem);
-            font-weight: 800;
-            color: rgba(255, 255, 255, 0.95);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 20px;
-            transition: all 0.05s ease;
+            font-size: 15vw;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 0.1em;
+            margin-bottom: 5vw;
         }
 
         .timer {
-            font-size: clamp(2rem, 10vw, 5rem);
+            font-size: 10vw;
             font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
-            letter-spacing: 0.1em;
+            color: white;
+            text-shadow: 0 0 10px red;
+            letter-spacing: 0.05em;
             white-space: nowrap;
-            transition: all 0.05s ease;
         }
 
-        /* глитч-анимация */
-        @keyframes glitchFlash {
-            0% { transform: skew(0deg, 0deg) translate(0, 0); text-shadow: 3px 0 red, -3px 0 blue; }
-            20% { transform: skew(5deg, 2deg) translate(4px, -2px); text-shadow: -5px 0 cyan, 5px 0 magenta; letter-spacing: 10px; }
-            40% { transform: skew(-4deg, -2deg) translate(-4px, 3px); text-shadow: 6px 0 lime, -6px 0 purple; }
-            60% { transform: skew(3deg, -2deg) translate(2px, 2px); text-shadow: -6px 0 yellow, 6px 0 red; }
-            80% { transform: skew(-2deg, 3deg) translate(-3px, -1px); text-shadow: 4px 0 white, -4px 0 black; }
-            100% { transform: skew(0deg, 0deg) translate(0, 0); text-shadow: none; letter-spacing: normal; }
-        }
-
-        .glitch-active {
-            animation: glitchFlash 0.18s 4;
-        }
-
-        /* фразы — на всю страницу, не влияют на центрирование */
         .whispers {
             position: fixed;
             top: 0;
@@ -110,277 +53,195 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 15;
+            z-index: 5;
         }
 
         .whisper {
             position: absolute;
-            color: rgba(255, 60, 60, 0.2);  /* кровавый оттенок, прозрачность 20% */
+            font-family: 'Comic Sans MS', cursive;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.35);
+            white-space: nowrap;
             font-size: 4vw;
             animation: float 10s linear forwards;
-            font-family: 'Comic Sans MS', 'Segoe Script', cursive;
-            font-weight: bold;
-            white-space: nowrap;
-            opacity: 0;
-            text-shadow: 0 0 6px rgba(0,0,0,0.8);
-            pointer-events: none;
         }
 
-        @keyframes floatAndFade {
-            0% { opacity: 0; transform: translate(0, 0) rotate(-8deg); }
-            15% { opacity: 0.8; }
-            50% { opacity: 0.5; transform: translate(45px, -40px) rotate(4deg); }
-            85% { opacity: 0.3; }
-            100% { opacity: 0; transform: translate(-35px, -130px) rotate(-6deg); }
+        @keyframes float {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) rotate(-5deg);
+            }
+            20% {
+                opacity: 0.8;
+            }
+            80% {
+                opacity: 0.4;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(5vw, -30vh) rotate(5deg);
+            }
         }
 
-        .footer-date {
+        .footer {
             position: fixed;
             bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 5vw;
-            background: rgba(0,0,0,0.7);
-            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 25px;
             border-radius: 50px;
             cursor: pointer;
             z-index: 20;
             font-weight: bold;
             white-space: nowrap;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
         }
 
-        .dim-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0);
-            pointer-events: none;
-            z-index: 25;
-            transition: background 2s ease;
+        @keyframes glitch {
+            0% { transform: skew(0deg); text-shadow: 3px 0 red, -3px 0 blue; }
+            25% { transform: skew(3deg); text-shadow: -4px 0 cyan, 4px 0 magenta; letter-spacing: 0.2em; }
+            50% { transform: skew(-3deg); text-shadow: 5px 0 lime, -5px 0 purple; }
+            75% { transform: skew(2deg); text-shadow: -3px 0 yellow, 3px 0 red; }
+            100% { transform: skew(0deg); text-shadow: none; letter-spacing: normal; }
         }
-        .dim-overlay.active {
-            background: rgba(0,0,0,0.85);
+
+        .glitch-on {
+            animation: glitch 0.15s 3;
         }
     </style>
 </head>
 <body>
 
-<div class="noise"></div>
-<div class="whispers" id="whispersContainer"></div>
+<div class="whispers" id="whispers"></div>
 
-<div class="center-wrapper">
-    <div class="main-text" id="mainGlitch">ТИК-ТАК</div>
-    <div class="timer" id="countdown">-- : -- : -- : --</div>
+<div class="main">
+    <div class="main-text" id="title">ТИК-ТАК</div>
+    <div class="timer" id="timer">-- : -- : -- : --</div>
 </div>
 
-<div class="footer-date" id="footerDate">8 МАЯ 23:59</div>
-<div class="dim-overlay" id="dimOverlay"></div>
+<div class="footer" id="footer">8 МАЯ 23:59</div>
 
 <script>
-    (function() {
-        // ========== ТАЙМЕР ==========
-        function getTargetDate() {
-            let target = new Date(2026, 4, 8, 23, 59, 0);
-            if (target <= new Date()) {
-                target.setFullYear(target.getFullYear() + 1);
-            }
-            return target;
+    // === ТАЙМЕР ===
+    let target = new Date(2026, 4, 8, 23, 59, 0);
+    if (target <= new Date()) target.setFullYear(target.getFullYear() + 1);
+
+    const timerDiv = document.getElementById('timer');
+    const titleDiv = document.getElementById('title');
+    const originalTitle = "ТИК-ТАК";
+
+    function updateTimer() {
+        let diff = target - Date.now();
+        if (diff <= 0) {
+            timerDiv.innerText = "00 : 00 : 00 : 00";
+            return;
         }
+        let d = Math.floor(diff / 86400000);
+        let h = Math.floor((diff % 86400000) / 3600000);
+        let m = Math.floor((diff % 3600000) / 60000);
+        let s = Math.floor((diff % 60000) / 1000);
+        timerDiv.innerText = `${d.toString().padStart(2,'0')} : ${h.toString().padStart(2,'0')} : ${m.toString().padStart(2,'0')} : ${s.toString().padStart(2,'0')}`;
+    }
+    updateTimer();
+    let timerInterval = setInterval(updateTimer, 1000);
 
-        const targetDate = getTargetDate();
-        const timerEl = document.getElementById('countdown');
-        const mainTextEl = document.getElementById('mainGlitch');
-        const ORIGINAL_TEXT = "ТИК-ТАК";
+    // === ВИЗУАЛЬНЫЙ ГЛИТЧ ===
+    function glitch() {
+        timerDiv.classList.add('glitch-on');
+        titleDiv.classList.add('glitch-on');
+        setTimeout(() => {
+            timerDiv.classList.remove('glitch-on');
+            titleDiv.classList.remove('glitch-on');
+        }, 500);
+    }
+    setInterval(glitch, 5000);
 
-        function updateTimer() {
-            const now = Date.now();
-            const diff = targetDate.getTime() - now;
+    // === ТЕКСТОВЫЙ ГЛЮК ===
+    const glitchTexts = ["Т1К-Т4К", "Т!К-Т@К", "ТИХ-ТАХ", "*******", "TIK-TAK", "ТИК-Т0К", "ТИК-ТАК?"];
+    function textGlitch() {
+        let random = glitchTexts[Math.floor(Math.random() * glitchTexts.length)];
+        titleDiv.innerText = random;
+        setTimeout(() => {
+            titleDiv.innerText = originalTitle;
+        }, 500);
+    }
+    setInterval(() => {
+        if (Math.random() < 0.6) textGlitch();
+    }, 10000);
 
-            if (diff <= 0) {
-                timerEl.innerHTML = "00 : 00 : 00 : 00";
-                return;
-            }
+    // === ПОЛНЫЙ ГЛИТЧ ПО G ИЛИ ТРОЙНОМУ ТАПУ ===
+    function fullGlitch() {
+        glitch();
+        textGlitch();
+        if (navigator.vibrate) navigator.vibrate(50);
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'g' || e.key === 'G') fullGlitch(); });
+    let taps = 0;
+    let tapTimer;
+    document.body.addEventListener('touchstart', () => {
+        taps++;
+        if (taps === 3) { fullGlitch(); taps = 0; clearTimeout(tapTimer); }
+        clearTimeout(tapTimer);
+        tapTimer = setTimeout(() => { taps = 0; }, 800);
+    });
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (3600000)) / (1000 * 60));
-            const seconds = Math.floor((diff % (60000)) / 1000);
-            timerEl.innerHTML = `${days.toString().padStart(2,'0')} : ${hours.toString().padStart(2,'0')} : ${minutes.toString().padStart(2,'0')} : ${seconds.toString().padStart(2,'0')}`;
-        }
+    // === ИНВЕРСИЯ ===
+    setInterval(() => {
+        document.body.style.filter = 'invert(1)';
+        setTimeout(() => document.body.style.filter = '', 400);
+    }, 10000);
 
-        updateTimer();
-        let timerInterval = setInterval(updateTimer, 1000);
-
-        // ========== ТЕКСТОВЫЕ ГЛЮКИ ==========
-        const glitchedVariants = [
-            "Т1К-Т4К", "Т!К-Т@К", "ТИХ-ТАХ", "ТИК-Т??", "*******",
-            "Тік-Так", "TIK-TAK", "ТИК-ГАК", "3ИК-ТАК",
-            "Т!К-ТАК", "ТИК-ТАК?", "Т/К-Т\\К", "ТИК_ТАК", "Т1К-ТАК"
-        ];
-
-        let textGlitchTimeout = null;
-
-        function applyTextGlitch() {
-            const randomVariant = glitchedVariants[Math.floor(Math.random() * glitchedVariants.length)];
-            mainTextEl.textContent = randomVariant;
-            mainTextEl.style.transform = 'skew(2deg, 1deg)';
-            mainTextEl.style.textShadow = '2px 0 red, -2px 0 blue';
-            
-            if (textGlitchTimeout) clearTimeout(textGlitchTimeout);
-            textGlitchTimeout = setTimeout(() => {
-                mainTextEl.textContent = ORIGINAL_TEXT;
-                mainTextEl.style.transform = '';
-                mainTextEl.style.textShadow = '';
-            }, 600);
-        }
-
-        setInterval(() => {
-            if (Math.random() < 0.9) applyTextGlitch();
-        }, 6000);
-
-        // ========== ВИЗУАЛЬНЫЙ ГЛИТЧ ==========
-        function applyVisualGlitch() {
-            timerEl.classList.add('glitch-active');
-            mainTextEl.classList.add('glitch-active');
-            
-            if (window.navigator && window.navigator.vibrate) {
-                window.navigator.vibrate(50);
-            }
-            
-            timerEl.style.filter = 'blur(1px)';
-            mainTextEl.style.filter = 'blur(1px)';
-            
-            setTimeout(() => {
-                timerEl.classList.remove('glitch-active');
-                mainTextEl.classList.remove('glitch-active');
-                timerEl.style.filter = '';
-                mainTextEl.style.filter = '';
-            }, 500);
-        }
-
-        setInterval(() => { applyVisualGlitch(); }, 5000);
-
-        function fullGlitch() {
-            applyVisualGlitch();
-            applyTextGlitch();
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'g' || e.key === 'G') {
-                fullGlitch();
-                timerEl.style.transform = 'translate(3px, -2px)';
-                mainTextEl.style.transform = 'translate(-2px, 2px)';
-                setTimeout(() => {
-                    timerEl.style.transform = '';
-                    if (!mainTextEl.textContent.includes('ТИК-ТАК')) return;
-                    mainTextEl.style.transform = '';
-                }, 200);
-            }
-        });
-        
-        let tapCount = 0;
-        let tapTimer;
-        document.body.addEventListener('touchstart', (e) => {
-            tapCount++;
-            if (tapCount === 3) {
-                fullGlitch();
-                tapCount = 0;
-                clearTimeout(tapTimer);
-            }
-            clearTimeout(tapTimer);
-            tapTimer = setTimeout(() => { tapCount = 0; }, 800);
-        });
-
-        // ========== ИНВЕРСИЯ ==========
-        setInterval(() => {
-            document.documentElement.style.filter = 'invert(1)';
-            setTimeout(() => {
-                document.documentElement.style.filter = '';
-            }, 400);
-        }, 10000);
-
-        // ========== ПРОБЕЛ ==========
-        let frozen = false;
-        let frozenTimeout;
-
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !frozen) {
-                e.preventDefault();
-                frozen = true;
-                clearInterval(timerInterval);
-                timerEl.style.opacity = '0.4';
-                timerEl.style.filter = 'blur(2px)';
-                frozenTimeout = setTimeout(() => {
-                    timerInterval = setInterval(updateTimer, 1000);
-                    timerEl.style.opacity = '1';
-                    timerEl.style.filter = '';
-                    frozen = false;
-                }, 5000);
-            }
-        });
-
-        // ========== ПРЕДУПРЕЖДЕНИЕ ==========
-        window.addEventListener('beforeunload', (e) => {
-            const message = "Таймер продолжает тикать. Ты уверена?";
+    // === ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР ===
+    let frozen = false;
+    let frozenT;
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !frozen) {
             e.preventDefault();
-            e.returnValue = message;
-            return message;
-        });
-
-        // ========== КЛИК ПО ДАТЕ ==========
-        const footer = document.getElementById('footerDate');
-        footer.addEventListener('click', (e) => {
-            e.stopPropagation();
-            alert("тик-так, тик-так, тик-так");
-        });
-
-        // ========== ШЁПОТЫ ==========
-        const phrases = [
-            "ты не пришла", "я ждал", "я существую?", "тебя нет", "тишина", "пустота", "почему так больно?", "где ты?..",
-            "что я сделал не так?", "безразличие", "разочарование", "гордыня", "эгоизм", "равнодушие",
-            "почему так..", "за что", "ты обещала", "предательство", "ложь", "страх", "боль", "один", "зачем?", "это конец?.."
-        ];
-
-        const words = ["шанс был","я ждал","я хотел","опоздала","30 минут","3.5 часа","ты обещала","тишина","я помню","не пришла","пустота","время вышло","никогда не узнаешь"];
-const whisperBox = document.getElementById('whispers');
-function addWhisper() {
-    let w = document.createElement('div');
-    w.className = 'whisper';
-    w.innerText = words[Math.floor(Math.random() * words.length)];
-    w.style.left = Math.random() * 80 + '%';
-    w.style.top = Math.random() * 80 + '%';
-    w.style.fontSize = (3 + Math.random() * 4) + 'vw';
-    w.style.animationDuration = (8 + Math.random() * 8) + 's';
-    w.style.color = 'rgba(255, 50, 50, 0.2)';      // кровавый + прозрачность
-    w.style.textShadow = '0 0 8px rgba(255, 0, 0, 0.8)'; // красное свечение
-    w.style.fontWeight = 'bold';
-    whisperBox.appendChild(w);
-    setTimeout(() => w.remove(), 10000);
-}
-setInterval(addWhisper, 2000);
-for (let i = 0; i < 10; i++) setTimeout(addWhisper, i * 300);
-
-        // ========== ЗАТЕМНЕНИЕ ==========
-        const dimOverlay = document.getElementById('dimOverlay');
-        let inactivityTimer;
-        
-        function resetInactivityTimer() {
-            clearTimeout(inactivityTimer);
-            dimOverlay.classList.remove('active');
-            inactivityTimer = setTimeout(() => {
-                dimOverlay.classList.add('active');
-            }, 30000);
+            frozen = true;
+            clearInterval(timerInterval);
+            timerDiv.style.opacity = '0.4';
+            frozenT = setTimeout(() => {
+                timerInterval = setInterval(updateTimer, 1000);
+                timerDiv.style.opacity = '1';
+                frozen = false;
+            }, 5000);
         }
-        
-        ['mousemove', 'click', 'touchstart', 'keydown'].forEach(event => {
-            document.addEventListener(event, resetInactivityTimer);
-        });
-        resetInactivityTimer();
-    })();
+    });
+
+    // === ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ ===
+    window.addEventListener('beforeunload', (e) => {
+        let msg = "Таймер продолжает тикать. Уверена?";
+        e.preventDefault();
+        e.returnValue = msg;
+        return msg;
+    });
+
+    // === ШЁПОТЫ ===
+    const words = ["ты не пришла", "я ждал", "я существую?", "тебя нет", "тишина", "пустота", "почему так больно?", "где ты?..",
+            "что я сделал не так?", "безразличие", "разочарование", "гордыня", "эгоизм", "равнодушие",
+            "почему так..", "за что", "ты обещала", "предательство", "ложь", "страх", "боль", "один", "зачем?", "это конец?.."];
+    const whisperBox = document.getElementById('whispers');
+    
+    function addWhisper() {
+        let w = document.createElement('div');
+        w.className = 'whisper';
+        w.innerText = words[Math.floor(Math.random() * words.length)];
+        w.style.left = Math.random() * 80 + '%';
+        w.style.top = Math.random() * 80 + '%';
+        w.style.fontSize = (3 + Math.random() * 4) + 'vw';
+        w.style.animationDuration = (8 + Math.random() * 8) + 's';
+        whisperBox.appendChild(w);
+        setTimeout(() => w.remove(), 10000);
+    }
+    
+    setInterval(addWhisper, 2000);
+    for (let i = 0; i < 10; i++) setTimeout(addWhisper, i * 300);
+
+    // === КЛИК ПО ДАТЕ ===
+    document.getElementById('footer').addEventListener('click', () => alert("🔪 Ты здесь. Тик-так."));
 </script>
 </body>
 </html>
