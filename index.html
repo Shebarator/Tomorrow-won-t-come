@@ -14,13 +14,11 @@
         }
 
         html, body {
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
+            width: 100%;
+            height: 100%;
         }
 
         body {
-            height: 100vh;
-            height: -webkit-fill-available;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
             display: flex;
             justify-content: center;
@@ -28,11 +26,6 @@
             font-family: 'Courier New', 'Monaco', monospace;
             position: relative;
             overflow: hidden;
-            transition: filter 0.05s ease;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
         }
 
         /* шум */
@@ -59,9 +52,10 @@
             position: relative;
             z-index: 20;
             padding: 20px;
+            width: 100%;
         }
 
-        /* УСИЛЕННЫЙ ГЛИТЧ (дёрганье, тени) */
+        /* глитч-анимация (визуальная) */
         @keyframes glitchFlash {
             0% { 
                 transform: skew(0deg, 0deg) translate(0, 0);
@@ -103,7 +97,6 @@
             text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
             letter-spacing: 0.1em;
             margin-bottom: 20px;
-            transition: all 0.05s ease;
             white-space: nowrap;
         }
 
@@ -114,7 +107,6 @@
             text-transform: uppercase;
             letter-spacing: 0.15em;
             margin-bottom: 30px;
-            transition: all 0.05s ease;
         }
 
         .whispers {
@@ -158,7 +150,6 @@
             padding: 8px 12px;
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
-            -webkit-tap-highlight-color: rgba(255,255,255,0.2);
         }
 
         .dim-overlay {
@@ -223,37 +214,21 @@
         updateTimer();
         let timerInterval = setInterval(updateTimer, 1000);
 
-        // ========== ТЕКСТОВЫЕ ГЛЮКИ (ТИК-ТАК → Т1К-Т4К и т.д.) ==========
+        // ========== ТЕКСТОВЫЕ ГЛЮКИ ==========
         const glitchedVariants = [
-            "Т1К-Т4К",
-            "Т!К-Т@К",
-            "ТИХ-ТАХ",
-            "ТИК-Т??",
-            "*******",
-            "Тік-Так",
-            "TIK-TAK",
-            "ТИК-ГАК",
-            "3ИК-ТАК",
-            "ТИК-Т0К",
-            "Т!К-ТАК",
-            "ТИК-ТАК?",
-            "Т/К-Т\\К",
-            "ТИК_ТАК",
-            "Т1К-ТАК"
+            "Т1К-Т4К", "Т!К-Т@К", "ТИХ-ТАХ", "ТИК-Т??", "*******",
+            "Тік-Так", "TIK-TAK", "ТИК-ГАК", "3ИК-ТАК", "ТИК-Т0К",
+            "Т!К-ТАК", "ТИК-ТАК?", "Т/К-Т\\К", "ТИК_ТАК", "Т1К-ТАК"
         ];
 
         let textGlitchTimeout = null;
 
         function applyTextGlitch() {
-            // выбираем случайный искажённый вариант
             const randomVariant = glitchedVariants[Math.floor(Math.random() * glitchedVariants.length)];
             mainTextEl.textContent = randomVariant;
-            
-            // небольшой дополнительный визуальный глитч
             mainTextEl.style.transform = 'skew(2deg, 1deg)';
             mainTextEl.style.textShadow = '2px 0 red, -2px 0 blue';
             
-            // через 600 мс возвращаем оригинал
             if (textGlitchTimeout) clearTimeout(textGlitchTimeout);
             textGlitchTimeout = setTimeout(() => {
                 mainTextEl.textContent = ORIGINAL_TEXT;
@@ -262,14 +237,11 @@
             }, 600);
         }
 
-        // текстовый глюк каждые 12 секунд (плюс-минус случайность)
         setInterval(() => {
-            if (Math.random() < 0.7) { // 70% шанс срабатывания
-                applyTextGlitch();
-            }
+            if (Math.random() < 0.7) applyTextGlitch();
         }, 12000);
 
-        // ========== ВИЗУАЛЬНЫЙ ГЛИТЧ (дёрганье, тени) ==========
+        // ========== ВИЗУАЛЬНЫЙ ГЛИТЧ ==========
         function applyVisualGlitch() {
             timerEl.classList.add('glitch-active');
             mainTextEl.classList.add('glitch-active');
@@ -289,12 +261,8 @@
             }, 500);
         }
 
-        // визуальный глитч каждые 5 секунд
-        setInterval(() => {
-            applyVisualGlitch();
-        }, 5000);
+        setInterval(() => { applyVisualGlitch(); }, 5000);
 
-        // комбинированный глитч (и текст, и визуал) по клавише G или тройному тапу
         function fullGlitch() {
             applyVisualGlitch();
             applyTextGlitch();
@@ -313,7 +281,6 @@
             }
         });
         
-        // тройной тап по экрану для телефонов
         let tapCount = 0;
         let tapTimer;
         document.body.addEventListener('touchstart', (e) => {
@@ -327,17 +294,15 @@
             tapTimer = setTimeout(() => { tapCount = 0; }, 800);
         });
 
-        // ========== ИНВЕРСИЯ ЦВЕТОВ ==========
+        // ========== ИНВЕРСИЯ ==========
         setInterval(() => {
             document.documentElement.style.filter = 'invert(1)';
-            document.body.style.transform = 'translateZ(0)';
             setTimeout(() => {
                 document.documentElement.style.filter = '';
-                document.body.style.transform = '';
             }, 400);
         }, 10000);
 
-        // ========== ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР ==========
+        // ========== ПРОБЕЛ ==========
         let frozen = false;
         let frozenTimeout;
 
@@ -357,7 +322,7 @@
             }
         });
 
-        // ========== ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ ==========
+        // ========== ПРЕДУПРЕЖДЕНИЕ ==========
         window.addEventListener('beforeunload', (e) => {
             const message = "Таймер продолжает тикать. Ты уверена?";
             e.preventDefault();
@@ -365,7 +330,7 @@
             return message;
         });
 
-        // ========== СКРЫТОЕ СООБЩЕНИЕ ПРИ КЛИКЕ НА ДАТУ ==========
+        // ========== КЛИК ПО ДАТЕ ==========
         const footer = document.getElementById('footerDate');
         footer.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -399,18 +364,16 @@
         }
 
         setInterval(() => {
-            const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-            createWhisper(randomPhrase);
+            createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
         }, 1500);
         
         for (let i = 0; i < 15; i++) {
             setTimeout(() => {
-                const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-                createWhisper(randomPhrase);
+                createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
             }, i * 200);
         }
 
-        // ========== ЗАТЕМНЕНИЕ ПРИ БЕЗДЕЙСТВИИ ==========
+        // ========== ЗАТЕМНЕНИЕ ==========
         const dimOverlay = document.getElementById('dimOverlay');
         let inactivityTimer;
         
