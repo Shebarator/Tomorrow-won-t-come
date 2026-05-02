@@ -2,179 +2,231 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тик-Так</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
+
         body {
             min-height: 100vh;
-            background: black;
+            background: #000000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             position: relative;
+            overflow: hidden;
         }
-        /* инверсия будет применяться к этому классу */
-        .invert {
-            filter: invert(1);
-        }
+
         .container {
             text-align: center;
-            z-index: 2;
+            z-index: 10;
         }
+
         .timer {
             font-size: 6rem;
-            color: white;
-            text-shadow: 0 0 5px red;
-            margin-bottom: 1rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+            letter-spacing: 8px;
+            margin-bottom: 30px;
         }
+
         .main-text {
             font-size: 4rem;
+            font-weight: 800;
             color: white;
-            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 15px;
+            margin-bottom: 40px;
         }
+
+        /* старый добрый глитч */
+        @keyframes glitchFlash {
+            0% { transform: skew(0deg, 0deg); text-shadow: 2px 0 red, -2px 0 blue; }
+            25% { transform: skew(3deg, 1deg); text-shadow: -3px 0 cyan, 3px 0 magenta; }
+            50% { transform: skew(-2deg, -1deg); text-shadow: 4px 0 lime, -4px 0 purple; }
+            75% { transform: skew(1deg, -2deg); text-shadow: -4px 0 yellow, 4px 0 red; }
+            100% { transform: skew(0deg, 0deg); text-shadow: none; }
+        }
+
+        .glitch-active {
+            animation: glitchFlash 0.12s 4;
+        }
+
         .footer-date {
             position: fixed;
             bottom: 15px;
-            right: 15px;
-            color: rgba(255,255,255,0.5);
+            right: 20px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            font-family: monospace;
             cursor: pointer;
-            z-index: 10;
-            background: black;
+            z-index: 20;
+            background: rgba(0,0,0,0.5);
             padding: 4px 8px;
             border-radius: 8px;
         }
-        .secret-msg {
-            position: fixed;
-            bottom: 60px;
-            right: 15px;
-            background: black;
-            color: #ff3366;
-            padding: 10px;
-            font-size: 0.8rem;
-            border-left: 3px solid #ff3366;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 10;
-            font-family: monospace;
-        }
+
         .whisper {
-            position: fixed;
-            font-family: 'Comic Sans MS', cursive;
-            color: rgba(255,255,255,0.2);
-            font-size: 1.2rem;
+            position: absolute;
+            font-family: 'Comic Sans MS', 'Segoe Script', cursive;
+            font-weight: bold;
             white-space: nowrap;
             pointer-events: none;
-            animation: fadeMove 8s linear forwards;
-            z-index: 1;
+            z-index: 5;
+            opacity: 0;
+            animation: floatFade 10s linear forwards;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 1.6rem;
+            text-shadow: 0 0 4px black;
         }
-        @keyframes fadeMove {
-            0% { opacity: 0; transform: translate(0, 0); }
-            20% { opacity: 0.6; }
-            80% { opacity: 0.3; }
-            100% { opacity: 0; transform: translate(50px, -100px); }
+
+        @keyframes floatFade {
+            0% { opacity: 0; transform: translate(0, 0) rotate(-5deg); }
+            20% { opacity: 0.7; }
+            80% { opacity: 0.5; }
+            100% { opacity: 0; transform: translate(60px, -120px) rotate(5deg); }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="main-text">ТИК-ТАК</div>
-    <div class="timer" id="timer">-- : -- : -- : --</div>
+    <div class="main-text" id="mainText">ТИК-ТАК</div>
+    <div class="timer" id="countdown">-- : -- : -- : --</div>
 </div>
-<div class="footer-date" id="footerDate">8 МАЯ 23:59</div>
-<div class="secret-msg" id="secretMsg">🔪 Ты здесь. Тик-так.</div>
+<div class="footer-date" id="dateTrigger">8 МАЯ 23:59</div>
 
 <script>
     // ========== ТАЙМЕР ==========
-    function getTarget() {
-        let d = new Date(2026, 4, 8, 23, 59, 0);
-        if (d <= new Date()) d.setFullYear(d.getFullYear() + 1);
-        return d;
+    function getTargetDate() {
+        let target = new Date(2026, 4, 8, 23, 59, 0);
+        if (target <= new Date()) target.setFullYear(target.getFullYear() + 1);
+        return target;
     }
-    const target = getTarget();
+
+    const targetDate = getTargetDate();
 
     function updateTimer() {
-        const diff = target - Date.now();
+        const diff = targetDate.getTime() - Date.now();
         if (diff <= 0) {
-            document.getElementById('timer').innerHTML = "00 : 00 : 00 : 00";
+            document.getElementById('countdown').innerHTML = "00 : 00 : 00 : 00";
             return;
         }
         const d = Math.floor(diff / 86400000);
         const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-        document.getElementById('timer').innerHTML = 
+        document.getElementById('countdown').innerHTML = 
             `${d.toString().padStart(2,'0')} : ${h.toString().padStart(2,'0')} : ${m.toString().padStart(2,'0')} : ${s.toString().padStart(2,'0')}`;
     }
+
     updateTimer();
     setInterval(updateTimer, 1000);
 
-    // ========== ГЛИТЧ (КАЖДЫЕ 5 СЕК) ==========
-    const timerEl = document.getElementById('timer');
-    const mainEl = document.querySelector('.main-text');
-    function glitch() {
-        timerEl.style.transform = 'skew(2deg,1deg)';
-        mainEl.style.transform = 'skew(-1deg,1deg)';
-        timerEl.style.textShadow = '2px 0 red, -2px 0 blue';
-        mainEl.style.textShadow = '2px 0 red, -2px 0 blue';
-        setTimeout(() => {
-            timerEl.style.transform = '';
-            mainEl.style.transform = '';
-            timerEl.style.textShadow = '';
-            mainEl.style.textShadow = '';
-        }, 150);
-    }
-    setInterval(glitch, 5000);
+    // ========== ГЛИТЧ (как раньше — через класс) ==========
+    const timerEl = document.getElementById('countdown');
+    const mainEl = document.getElementById('mainText');
 
-    // G — ручной глитч
+    function applyGlitch() {
+        timerEl.classList.add('glitch-active');
+        mainEl.classList.add('glitch-active');
+        setTimeout(() => {
+            timerEl.classList.remove('glitch-active');
+            mainEl.classList.remove('glitch-active');
+        }, 500);
+    }
+
+    // глитч каждые 5 секунд
+    setInterval(applyGlitch, 5000);
+
+    // глитч по клавише G
     document.addEventListener('keydown', (e) => {
-        if (e.key.toLowerCase() === 'g') glitch();
+        if (e.key.toLowerCase() === 'g') {
+            applyGlitch();
+            timerEl.style.transform = 'translate(2px, -1px)';
+            mainEl.style.transform = 'translate(-1px, 1px)';
+            setTimeout(() => {
+                timerEl.style.transform = '';
+                mainEl.style.transform = '';
+            }, 200);
+        }
     });
 
-    // ========== ИНВЕРСИЯ (РАБОТАЕТ ГАРАНТИРОВАННО) ==========
-    setInterval(() => {
-        document.body.classList.add('invert');
-        setTimeout(() => {
-            document.body.classList.remove('invert');
-        }, 250);
-    }, 10000);
+    // ========== ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР ==========
+    let frozen = false;
+    let timerInterval = setInterval(updateTimer, 1000);
+    let frozenTimeout;
 
-    // ========== СКРЫТОЕ СООБЩЕНИЕ ПРИ КЛИКЕ НА ДАТУ ==========
-    const footer = document.getElementById('footerDate');
-    const secret = document.getElementById('secretMsg');
-    footer.addEventListener('click', () => {
-        secret.style.opacity = '1';
-        setTimeout(() => secret.style.opacity = '0', 3000);
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !frozen) {
+            e.preventDefault();
+            frozen = true;
+            clearInterval(timerInterval);
+            timerEl.style.opacity = '0.5';
+            frozenTimeout = setTimeout(() => {
+                timerInterval = setInterval(updateTimer, 1000);
+                timerEl.style.opacity = '1';
+                frozen = false;
+            }, 5000);
+        }
     });
 
     // ========== ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ (СВОЙ ТЕКСТ) ==========
     window.addEventListener('beforeunload', (e) => {
-        const myMessage = "Ты уверена? Время не ждёт.";
+        const msg = "Таймер продолжает тикать. Ты уверена?";
         e.preventDefault();
-        e.returnValue = myMessage;
-        return myMessage;
+        e.returnValue = msg;
+        return msg;
     });
 
-    // ========== ШЁПОТЫ (СЛУЧАЙНЫЕ ФРАЗЫ) ==========
-    const phrases = ["шанс был","я ждал","опоздала","30 минут","3.5 часа","ты обещала","я помню","последний шанс","пустота","время вышло"];
-    function addWhisper() {
-        let w = document.createElement('div');
-        w.className = 'whisper';
-        w.innerText = phrases[Math.floor(Math.random() * phrases.length)];
-        w.style.left = Math.random() * 90 + '%';
-        w.style.top = Math.random() * 90 + '%';
-        w.style.fontSize = (0.8 + Math.random() * 1.5) + 'rem';
-        document.body.appendChild(w);
-        setTimeout(() => w.remove(), 8000);
+    // ========== СКРЫТОЕ СООБЩЕНИЕ ПО КЛИКУ (ГАРАНТИРОВАННО РАБОТАЕТ) ==========
+    document.getElementById('dateTrigger').addEventListener('click', () => {
+        alert("🔪 Ты здесь. Каждый раз — как пощёчина. Тик-так.");
+    });
+
+    // ========== ШЁПОТЫ (ЧАСТО, КРУПНО, ЖИРНО) ==========
+    const phrases = [
+        "шанс был", "я ждал", "я хотел", "опоздала", 
+        "30 минут", "3.5 часа", "ты обещала", "тишина", 
+        "я помню", "последний шанс", "не пришла", "пустота",
+        "время вышло", "никогда не узнаешь", "тик-так"
+    ];
+
+    function createWhisper() {
+        const span = document.createElement('div');
+        span.className = 'whisper';
+        span.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+        
+        // случайное положение
+        span.style.left = Math.random() * 90 + '%';
+        span.style.top = Math.random() * 90 + '%';
+        // размер от 1.2rem до 2.8rem (заметно)
+        const size = 1.2 + Math.random() * 1.6;
+        span.style.fontSize = size + 'rem';
+        // разная скорость анимации
+        const duration = 7 + Math.random() * 8;
+        span.style.animationDuration = duration + 's';
+        
+        document.body.appendChild(span);
+        
+        setTimeout(() => {
+            span.remove();
+        }, duration * 1000);
     }
-    setInterval(addWhisper, 3000);
-    for(let i=0;i<5;i++) setTimeout(addWhisper, i*500);
+
+    // каждые 2 секунды новая фраза (часто)
+    setInterval(createWhisper, 2000);
+    // сразу создаём несколько при загрузке
+    for (let i = 0; i < 12; i++) {
+        setTimeout(createWhisper, i * 300);
+    }
 </script>
 </body>
 </html>
