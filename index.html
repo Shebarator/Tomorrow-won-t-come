@@ -12,6 +12,10 @@
             user-select: none;
         }
 
+        html {
+            background: #000000;
+        }
+
         body {
             min-height: 100vh;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
@@ -21,10 +25,8 @@
             font-family: 'Courier New', 'Monaco', monospace;
             position: relative;
             overflow: hidden;
-            transition: filter 0.05s ease;
         }
 
-        /* шум */
         .noise {
             position: fixed;
             top: 0;
@@ -50,7 +52,6 @@
             padding: 20px;
         }
 
-        /* глитч-анимация */
         @keyframes glitchFlash {
             0% { transform: skew(0deg, 0deg); text-shadow: 2px 0 red, -2px 0 blue; opacity: 1; }
             25% { transform: skew(3deg, 1deg); text-shadow: -3px 0 cyan, 3px 0 magenta; }
@@ -119,10 +120,30 @@
             bottom: 15px;
             right: 20px;
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.5);
             font-family: monospace;
             z-index: 30;
             cursor: pointer;
+        }
+
+        /* скрытое сообщение (всплывает при клике на дату) */
+        .secret-message {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            border-left: 3px solid #ff3366;
+            padding: 12px 18px;
+            max-width: 260px;
+            font-size: 0.8rem;
+            color: #eee;
+            font-family: monospace;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            border-radius: 6px;
+            backdrop-filter: blur(4px);
         }
 
         @media (max-width: 768px) {
@@ -143,9 +164,10 @@
 </div>
 
 <div class="footer-date">8 МАЯ 23:59</div>
+<div class="secret-message" id="secretMsg">🔪 Ты здесь. Каждый раз — как пощёчина. Тик-так.</div>
 
 <script>
-    // ---------------------- ТАЙМЕР ----------------------
+    // ===================== ТАЙМЕР =====================
     function getTargetDate() {
         let target = new Date(2026, 4, 8, 23, 59, 0);
         if (target <= new Date()) {
@@ -176,7 +198,7 @@
     updateTimer();
     let timerInterval = setInterval(updateTimer, 1000);
 
-    // ---------------------- ГЛИТЧИ ----------------------
+    // ===================== ГЛИТЧИ =====================
     const timerEl = document.getElementById('countdown');
     const mainTextEl = document.getElementById('mainGlitch');
 
@@ -189,12 +211,10 @@
         }, 500);
     }
 
-    // глитч каждые 5 секунд
     setInterval(() => {
         applyGlitch();
     }, 5000);
 
-    // глитч по клавише G
     document.addEventListener('keydown', (e) => {
         if (e.key === 'g' || e.key === 'G') {
             applyGlitch();
@@ -207,15 +227,15 @@
         }
     });
 
-    // ---------------------- ИНВЕРСИЯ ЦВЕТОВ ----------------------
+    // ===================== ИНВЕРСИЯ (весь экран) =====================
     setInterval(() => {
-        document.body.style.filter = 'invert(1)';
+        document.documentElement.style.filter = 'invert(1)';
         setTimeout(() => {
-            document.body.style.filter = '';
+            document.documentElement.style.filter = '';
         }, 250);
     }, 10000);
 
-    // ---------------------- ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР ----------------------
+    // ===================== ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР =====================
     let frozen = false;
     let frozenTimeout;
 
@@ -224,7 +244,6 @@
             e.preventDefault();
             frozen = true;
             clearInterval(timerInterval);
-            // визуальный намёк на заморозку
             timerEl.style.opacity = '0.5';
             frozenTimeout = setTimeout(() => {
                 timerInterval = setInterval(updateTimer, 1000);
@@ -234,13 +253,35 @@
         }
     });
 
-    // ---------------------- ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ ----------------------
+    // ===================== ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ (РАБОТАЕТ БЕЗ КЛИКА) =====================
+    // ✏️ ИЗМЕНИ ТЕКСТ НИЖЕ НА ЛЮБОЙ
+    const customCloseMessage = "Ты действительно хочешь уйти? Таймер продолжит тикать. Без тебя.";
+
     window.addEventListener('beforeunload', (e) => {
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = customCloseMessage;
+        return customCloseMessage;
     });
 
-    // ---------------------- ШЁПОТЫ (ПОЛУПРОЗРАЧНЫЕ ФРАЗЫ) ----------------------
+    // форсируем "активацию" предупреждения без клика (для некоторых браузеров)
+    document.body.click();
+
+    // ===================== СКРЫТОЕ СООБЩЕНИЕ ПРИ КЛИКЕ НА ДАТУ =====================
+    const footerDate = document.querySelector('.footer-date');
+    const secretMsg = document.getElementById('secretMsg');
+
+    if (footerDate && secretMsg) {
+        footerDate.style.cursor = 'pointer';
+        footerDate.addEventListener('click', (e) => {
+            e.stopPropagation();
+            secretMsg.style.opacity = '1';
+            setTimeout(() => {
+                secretMsg.style.opacity = '0';
+            }, 4000);
+        });
+    }
+
+    // ===================== ШЁПОТЫ =====================
     const phrases = [
         "шанс был", "я ждал", "я хотел", "опоздала", 
         "30 минут", "3.5 часа", "ты обещала", "тишина", 
