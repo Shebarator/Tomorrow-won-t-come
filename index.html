@@ -28,7 +28,6 @@
             position: relative;
         }
 
-        /* шум */
         .noise {
             position: fixed;
             top: 0;
@@ -47,7 +46,6 @@
             100% { background-position: 15px 25px; opacity: 0.3; }
         }
 
-        /* главный контейнер — строго по центру */
         .center-wrapper {
             position: absolute;
             top: 50%;
@@ -60,10 +58,6 @@
             pointer-events: none;
         }
 
-        /* чтобы клик по дате работал */
-        .center-wrapper {
-            pointer-events: none;
-        }
         .center-wrapper * {
             pointer-events: auto;
         }
@@ -88,7 +82,6 @@
             transition: all 0.05s ease;
         }
 
-        /* глитч-анимация */
         @keyframes glitchFlash {
             0% { transform: skew(0deg, 0deg) translate(0, 0); text-shadow: 3px 0 red, -3px 0 blue; }
             20% { transform: skew(5deg, 2deg) translate(4px, -2px); text-shadow: -5px 0 cyan, 5px 0 magenta; letter-spacing: 10px; }
@@ -102,7 +95,6 @@
             animation: glitchFlash 0.18s 4;
         }
 
-        /* фразы — на всю страницу, не влияют на центрирование */
         .whispers {
             position: fixed;
             top: 0;
@@ -114,24 +106,29 @@
         }
 
         .whisper {
-    position: absolute;
-    font-family: 'Comic Sans MS', 'Segoe Script', cursive;
-    font-weight: bold;
-    white-space: nowrap;
-    pointer-events: none;
-    font-size: 4vw;
-    opacity: 0;
-    animation: floatAndFade 12s infinite ease-in-out;
-    color: rgba(220, 50, 50, 0.65);
-    text-shadow: 0 0 6px rgba(180, 0, 0, 0.6);
-}
+            position: absolute;
+            font-family: 'Comic Sans MS', 'Segoe Script', cursive;
+            font-weight: bold;
+            white-space: normal;
+            word-break: keep-all;
+            pointer-events: none;
+            font-size: 4vw;
+            opacity: 0;
+            animation: floatAndFade 12s infinite ease-in-out;
+            color: rgba(255, 200, 200, 0.7);
+            text-shadow: 0 0 8px rgba(255, 120, 120, 0.4);
+            max-width: 90vw;
+            text-align: center;
+            left: 5vw !important;
+            right: 5vw !important;
+        }
 
         @keyframes floatAndFade {
-            0% { opacity: 0; transform: translate(0, 0) rotate(-8deg); }
-            15% { opacity: 0.8; }
-            50% { opacity: 0.5; transform: translate(45px, -40px) rotate(4deg); }
-            85% { opacity: 0.3; }
-            100% { opacity: 0; transform: translate(-35px, -130px) rotate(-6deg); }
+            0% { opacity: 0; transform: translateY(0) rotate(-5deg); }
+            15% { opacity: 0.8; transform: translateY(-10px) rotate(0deg); }
+            50% { opacity: 0.5; transform: translateY(-30px) rotate(3deg); }
+            85% { opacity: 0.3; transform: translateY(-60px) rotate(5deg); }
+            100% { opacity: 0; transform: translateY(-100px) rotate(8deg); }
         }
 
         .footer-date {
@@ -182,7 +179,6 @@
 
 <script>
     (function() {
-        // ========== ТАЙМЕР ==========
         function getTargetDate() {
             let target = new Date(2026, 4, 8, 23, 59, 0);
             if (target <= new Date()) {
@@ -199,12 +195,10 @@
         function updateTimer() {
             const now = Date.now();
             const diff = targetDate.getTime() - now;
-
             if (diff <= 0) {
                 timerEl.innerHTML = "00 : 00 : 00 : 00";
                 return;
             }
-
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (3600000)) / (1000 * 60));
@@ -215,7 +209,6 @@
         updateTimer();
         let timerInterval = setInterval(updateTimer, 1000);
 
-        // ========== ТЕКСТОВЫЕ ГЛЮКИ ==========
         const glitchedVariants = [
             "Т1К-Т4К", "Т!К-Т@К", "ТИХ-ТАХ", "ТИК-Т??", "*******",
             "Тік-Так", "TIK-TAK", "ТИК-ГАК", "3ИК-ТАК",
@@ -229,7 +222,6 @@
             mainTextEl.textContent = randomVariant;
             mainTextEl.style.transform = 'skew(2deg, 1deg)';
             mainTextEl.style.textShadow = '2px 0 red, -2px 0 blue';
-
             if (textGlitchTimeout) clearTimeout(textGlitchTimeout);
             textGlitchTimeout = setTimeout(() => {
                 mainTextEl.textContent = ORIGINAL_TEXT;
@@ -242,18 +234,14 @@
             if (Math.random() < 0.9) applyTextGlitch();
         }, 6000);
 
-        // ========== ВИЗУАЛЬНЫЙ ГЛИТЧ ==========
         function applyVisualGlitch() {
             timerEl.classList.add('glitch-active');
             mainTextEl.classList.add('glitch-active');
-
             if (window.navigator && window.navigator.vibrate) {
                 window.navigator.vibrate(50);
             }
-
             timerEl.style.filter = 'blur(1px)';
             mainTextEl.style.filter = 'blur(1px)';
-
             setTimeout(() => {
                 timerEl.classList.remove('glitch-active');
                 mainTextEl.classList.remove('glitch-active');
@@ -282,20 +270,11 @@
             }
         });
 
-        let tapCount = 0;
-        let tapTimer;
+        // ГЛИТЧ С ПЕРВОГО КАСАНИЯ (один тап)
         document.body.addEventListener('touchstart', (e) => {
-            tapCount++;
-            if (tapCount === 3) {
-                fullGlitch();
-                tapCount = 0;
-                clearTimeout(tapTimer);
-            }
-            clearTimeout(tapTimer);
-            tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+            fullGlitch();
         });
 
-        // ========== ИНВЕРСИЯ ==========
         setInterval(() => {
             document.documentElement.style.filter = 'invert(1)';
             setTimeout(() => {
@@ -303,7 +282,6 @@
             }, 400);
         }, 10000);
 
-        // ========== ПРОБЕЛ ==========
         let frozen = false;
         let frozenTimeout;
 
@@ -323,7 +301,6 @@
             }
         });
 
-        // ========== ПРЕДУПРЕЖДЕНИЕ ==========
         window.addEventListener('beforeunload', (e) => {
             const message = "Таймер продолжает тикать. Ты уверена?";
             e.preventDefault();
@@ -331,14 +308,12 @@
             return message;
         });
 
-        // ========== КЛИК ПО ДАТЕ ==========
         const footer = document.getElementById('footerDate');
         footer.addEventListener('click', (e) => {
             e.stopPropagation();
             alert("тик-так, тик-так, тик-так");
         });
 
-        // ========== ШЁПОТЫ ==========
         const phrases = [
             "ты не пришла", "я ждал", "я существую?", "тебя нет", "тишина", "пустота", "почему так больно?", "где ты?..",
             "что я сделал не так?", "безразличие", "разочарование", "гордыня", "эгоизм", "равнодушие",
@@ -351,13 +326,12 @@
             const span = document.createElement('div');
             span.className = 'whisper';
             span.textContent = text;
-            span.style.left = Math.random() * 90 + '%';
-            span.style.top = Math.random() * 90 + '%';
+            span.style.left = (5 + Math.random() * 80) + '%';
+            span.style.top = Math.random() * 80 + '%';
             const size = 1.2 + Math.random() * 2.2;
             span.style.fontSize = size + 'rem';
             span.style.animationDuration = (8 + Math.random() * 10) + 's';
             span.style.animationDelay = Math.random() * 3 + 's';
-            span.style.color = `rgba(255, 255, 255, ${0.2 + Math.random() * 0.3})`;
             container.appendChild(span);
             span.addEventListener('animationend', () => span.remove());
         }
@@ -372,7 +346,6 @@
             }, i * 200);
         }
 
-        // ========== ЗАТЕМНЕНИЕ ==========
         const dimOverlay = document.getElementById('dimOverlay');
         let inactivityTimer;
 
