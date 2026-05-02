@@ -16,16 +16,16 @@
         html, body {
             width: 100%;
             height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow: hidden;
         }
 
         body {
             background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: 'Courier New', 'Monaco', monospace;
             position: relative;
-            overflow: hidden;
         }
 
         /* шум */
@@ -47,68 +47,62 @@
             100% { background-position: 15px 25px; opacity: 0.3; }
         }
 
-        .container {
+        /* главный контейнер — строго по центру */
+        .center-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
             text-align: center;
-            position: relative;
             z-index: 20;
             padding: 20px;
-            width: 100%;
+            pointer-events: none;
         }
 
-        /* глитч-анимация (визуальная) */
+        /* чтобы клик по дате работал */
+        .center-wrapper {
+            pointer-events: none;
+        }
+        .center-wrapper * {
+            pointer-events: auto;
+        }
+
+        .main-text {
+            font-size: clamp(1.8rem, 10vw, 4rem);
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.95);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 20px;
+            transition: all 0.05s ease;
+        }
+
+        .timer {
+            font-size: clamp(2rem, 10vw, 5rem);
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            transition: all 0.05s ease;
+        }
+
+        /* глитч-анимация */
         @keyframes glitchFlash {
-            0% { 
-                transform: skew(0deg, 0deg) translate(0, 0);
-                text-shadow: 3px 0 red, -3px 0 blue;
-                opacity: 1;
-            }
-            20% { 
-                transform: skew(5deg, 2deg) translate(4px, -2px);
-                text-shadow: -5px 0 cyan, 5px 0 magenta;
-                letter-spacing: 10px;
-            }
-            40% { 
-                transform: skew(-4deg, -2deg) translate(-4px, 3px);
-                text-shadow: 6px 0 lime, -6px 0 purple;
-            }
-            60% { 
-                transform: skew(3deg, -2deg) translate(2px, 2px);
-                text-shadow: -6px 0 yellow, 6px 0 red;
-            }
-            80% { 
-                transform: skew(-2deg, 3deg) translate(-3px, -1px);
-                text-shadow: 4px 0 white, -4px 0 black;
-            }
-            100% { 
-                transform: skew(0deg, 0deg) translate(0, 0);
-                text-shadow: none;
-                letter-spacing: normal;
-            }
+            0% { transform: skew(0deg, 0deg) translate(0, 0); text-shadow: 3px 0 red, -3px 0 blue; }
+            20% { transform: skew(5deg, 2deg) translate(4px, -2px); text-shadow: -5px 0 cyan, 5px 0 magenta; letter-spacing: 10px; }
+            40% { transform: skew(-4deg, -2deg) translate(-4px, 3px); text-shadow: 6px 0 lime, -6px 0 purple; }
+            60% { transform: skew(3deg, -2deg) translate(2px, 2px); text-shadow: -6px 0 yellow, 6px 0 red; }
+            80% { transform: skew(-2deg, 3deg) translate(-3px, -1px); text-shadow: 4px 0 white, -4px 0 black; }
+            100% { transform: skew(0deg, 0deg) translate(0, 0); text-shadow: none; letter-spacing: normal; }
         }
 
         .glitch-active {
             animation: glitchFlash 0.18s 4;
         }
 
-        .timer {
-            font-size: clamp(2.2rem, 12vw, 6rem);
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
-            letter-spacing: 0.1em;
-            margin-bottom: 20px;
-            white-space: nowrap;
-        }
-
-        .main-text {
-            font-size: clamp(1.8rem, 8vw, 4rem);
-            font-weight: 800;
-            color: rgba(255, 255, 255, 0.95);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 30px;
-        }
-
+        /* фразы — на всю страницу, не влияют на центрирование */
         .whispers {
             position: fixed;
             top: 0;
@@ -143,13 +137,14 @@
             bottom: 15px;
             right: 15px;
             font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.5);
             font-family: monospace;
             z-index: 30;
             cursor: pointer;
-            padding: 8px 12px;
-            background: rgba(0,0,0,0.3);
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.4);
             border-radius: 20px;
+            -webkit-tap-highlight-color: rgba(255,255,255,0.2);
         }
 
         .dim-overlay {
@@ -172,10 +167,12 @@
 
 <div class="noise"></div>
 <div class="whispers" id="whispersContainer"></div>
-<div class="container">
+
+<div class="center-wrapper">
     <div class="main-text" id="mainGlitch">ТИК-ТАК</div>
     <div class="timer" id="countdown">-- : -- : -- : --</div>
 </div>
+
 <div class="footer-date" id="footerDate">8 МАЯ 23:59</div>
 <div class="dim-overlay" id="dimOverlay"></div>
 
@@ -217,7 +214,7 @@
         // ========== ТЕКСТОВЫЕ ГЛЮКИ ==========
         const glitchedVariants = [
             "Т1К-Т4К", "Т!К-Т@К", "ТИХ-ТАХ", "ТИК-Т??", "*******",
-            "Тік-Так", "TIK-TAK", "ТИК-ГАК", "3ИК-ТАК", "ТИК-Т0К",
+            "Тік-Так", "TIK-TAK", "ТИК-ГАК", "3ИК-ТАК",
             "Т!К-ТАК", "ТИК-ТАК?", "Т/К-Т\\К", "ТИК_ТАК", "Т1К-ТАК"
         ];
 
@@ -238,8 +235,8 @@
         }
 
         setInterval(() => {
-            if (Math.random() < 0.7) applyTextGlitch();
-        }, 12000);
+            if (Math.random() < 0.9) applyTextGlitch();
+        }, 6000);
 
         // ========== ВИЗУАЛЬНЫЙ ГЛИТЧ ==========
         function applyVisualGlitch() {
