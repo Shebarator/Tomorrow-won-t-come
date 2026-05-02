@@ -345,32 +345,24 @@
             "почему так..", "за что", "ты обещала", "предательство", "ложь", "страх", "боль", "один", "зачем?", "это конец?.."
         ];
 
-        const container = document.getElementById('whispersContainer');
-
-        function createWhisper(text) {
-            const span = document.createElement('div');
-            span.className = 'whisper';
-            span.textContent = text;
-            span.style.left = Math.random() * 90 + '%';
-            span.style.top = Math.random() * 90 + '%';
-            const size = 1.2 + Math.random() * 2.2;
-            span.style.fontSize = size + 'rem';
-            span.style.animationDuration = (8 + Math.random() * 10) + 's';
-            span.style.animationDelay = Math.random() * 3 + 's';
-            span.style.color = `rgba(255, 255, 255, ${0.2 + Math.random() * 0.3})`;
-            container.appendChild(span);
-            span.addEventListener('animationend', () => span.remove());
-        }
-
-        setInterval(() => {
-            createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
-        }, 1500);
-        
-        for (let i = 0; i < 15; i++) {
-            setTimeout(() => {
-                createWhisper(phrases[Math.floor(Math.random() * phrases.length)]);
-            }, i * 200);
-        }
+        const words = ["шанс был","я ждал","я хотел","опоздала","30 минут","3.5 часа","ты обещала","тишина","я помню","не пришла","пустота","время вышло","никогда не узнаешь"];
+const whisperBox = document.getElementById('whispers');
+function addWhisper() {
+    let w = document.createElement('div');
+    w.className = 'whisper';
+    w.innerText = words[Math.floor(Math.random() * words.length)];
+    w.style.left = Math.random() * 80 + '%';
+    w.style.top = Math.random() * 80 + '%';
+    w.style.fontSize = (3 + Math.random() * 4) + 'vw';
+    w.style.animationDuration = (8 + Math.random() * 8) + 's';
+    w.style.color = 'rgba(255, 50, 50, 0.2)';      // кровавый + прозрачность
+    w.style.textShadow = '0 0 8px rgba(255, 0, 0, 0.8)'; // красное свечение
+    w.style.fontWeight = 'bold';
+    whisperBox.appendChild(w);
+    setTimeout(() => w.remove(), 10000);
+}
+setInterval(addWhisper, 2000);
+for (let i = 0; i < 10; i++) setTimeout(addWhisper, i * 300);
 
         // ========== ЗАТЕМНЕНИЕ ==========
         const dimOverlay = document.getElementById('dimOverlay');
