@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Тик-Так</title>
     <style>
         * {
@@ -10,10 +10,17 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
         }
 
         body {
-            min-height: 100vh;
+            height: 100vh;
+            height: -webkit-fill-available;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
             display: flex;
             justify-content: center;
@@ -22,6 +29,10 @@
             position: relative;
             overflow: hidden;
             transition: filter 0.05s ease;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
 
         /* шум */
@@ -34,13 +45,13 @@
             pointer-events: none;
             z-index: 10;
             background: repeating-radial-gradient(circle at 20% 30%, rgba(0,0,0,0), rgba(0,0,0,0.08) 1px, transparent 2px);
-            opacity: 0.2;
-            animation: staticNoise 0.2s infinite;
+            opacity: 0.25;
+            animation: staticNoise 0.15s infinite;
         }
 
         @keyframes staticNoise {
-            0% { background-position: 0 0; opacity: 0.1; }
-            100% { background-position: 10px 20px; opacity: 0.2; }
+            0% { background-position: 0 0; opacity: 0.15; }
+            100% { background-position: 15px 25px; opacity: 0.3; }
         }
 
         .container {
@@ -50,36 +61,59 @@
             padding: 20px;
         }
 
-        /* глитч-анимация */
+        /* УСИЛЕННЫЙ ГЛИТЧ (дёрганье, тени) */
         @keyframes glitchFlash {
-            0% { transform: skew(0deg, 0deg); text-shadow: 2px 0 red, -2px 0 blue; opacity: 1; }
-            25% { transform: skew(3deg, 1deg); text-shadow: -3px 0 cyan, 3px 0 magenta; }
-            50% { transform: skew(-2deg, -1deg); text-shadow: 4px 0 lime, -4px 0 purple; }
-            75% { transform: skew(1deg, -2deg); text-shadow: -4px 0 yellow, 4px 0 red; }
-            100% { transform: skew(0deg, 0deg); text-shadow: none; }
+            0% { 
+                transform: skew(0deg, 0deg) translate(0, 0);
+                text-shadow: 3px 0 red, -3px 0 blue;
+                opacity: 1;
+            }
+            20% { 
+                transform: skew(5deg, 2deg) translate(4px, -2px);
+                text-shadow: -5px 0 cyan, 5px 0 magenta;
+                letter-spacing: 10px;
+            }
+            40% { 
+                transform: skew(-4deg, -2deg) translate(-4px, 3px);
+                text-shadow: 6px 0 lime, -6px 0 purple;
+            }
+            60% { 
+                transform: skew(3deg, -2deg) translate(2px, 2px);
+                text-shadow: -6px 0 yellow, 6px 0 red;
+            }
+            80% { 
+                transform: skew(-2deg, 3deg) translate(-3px, -1px);
+                text-shadow: 4px 0 white, -4px 0 black;
+            }
+            100% { 
+                transform: skew(0deg, 0deg) translate(0, 0);
+                text-shadow: none;
+                letter-spacing: normal;
+            }
         }
 
         .glitch-active {
-            animation: glitchFlash 0.12s 4;
+            animation: glitchFlash 0.18s 4;
         }
 
         .timer {
-            font-size: 6rem;
+            font-size: clamp(2.2rem, 12vw, 6rem);
             font-weight: 900;
             color: #ffffff;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
-            letter-spacing: 8px;
-            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
             transition: all 0.05s ease;
+            white-space: nowrap;
         }
 
         .main-text {
-            font-size: 4rem;
+            font-size: clamp(1.8rem, 8vw, 4rem);
             font-weight: 800;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.95);
             text-transform: uppercase;
-            letter-spacing: 15px;
-            margin-bottom: 40px;
+            letter-spacing: 0.15em;
+            margin-bottom: 30px;
             transition: all 0.05s ease;
         }
 
@@ -96,39 +130,50 @@
         .whisper {
             position: absolute;
             font-family: 'Comic Sans MS', 'Segoe Script', cursive;
-            font-size: 1.8rem;
             font-weight: bold;
-            color: rgba(255, 255, 255, 0.22);
             white-space: nowrap;
             opacity: 0;
-            animation: floatAndFade 14s infinite ease-in-out;
-            text-shadow: 0 0 6px rgba(0,0,0,0.6);
+            animation: floatAndFade 12s infinite ease-in-out;
+            text-shadow: 0 0 6px rgba(0,0,0,0.8);
             pointer-events: none;
         }
 
         @keyframes floatAndFade {
-            0% { opacity: 0; transform: translate(0, 0) rotate(-6deg); }
-            15% { opacity: 0.65; }
-            50% { opacity: 0.45; transform: translate(35px, -30px) rotate(3deg); }
-            85% { opacity: 0.2; }
-            100% { opacity: 0; transform: translate(-25px, -110px) rotate(-4deg); }
+            0% { opacity: 0; transform: translate(0, 0) rotate(-8deg); }
+            15% { opacity: 0.8; }
+            50% { opacity: 0.5; transform: translate(45px, -40px) rotate(4deg); }
+            85% { opacity: 0.3; }
+            100% { opacity: 0; transform: translate(-35px, -130px) rotate(-6deg); }
         }
 
         .footer-date {
             position: fixed;
             bottom: 15px;
-            right: 20px;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.3);
+            right: 15px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
             font-family: monospace;
             z-index: 30;
             cursor: pointer;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            -webkit-tap-highlight-color: rgba(255,255,255,0.2);
         }
 
-        @media (max-width: 768px) {
-            .timer { font-size: 2.8rem; letter-spacing: 4px; }
-            .main-text { font-size: 2rem; letter-spacing: 6px; }
-            .whisper { font-size: 1rem; }
+        .dim-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0);
+            pointer-events: none;
+            z-index: 25;
+            transition: background 2s ease;
+        }
+        .dim-overlay.active {
+            background: rgba(0,0,0,0.85);
         }
     </style>
 </head>
@@ -136,154 +181,252 @@
 
 <div class="noise"></div>
 <div class="whispers" id="whispersContainer"></div>
-
 <div class="container">
     <div class="main-text" id="mainGlitch">ТИК-ТАК</div>
     <div class="timer" id="countdown">-- : -- : -- : --</div>
 </div>
-
-<div class="footer-date">8 МАЯ 23:59</div>
+<div class="footer-date" id="footerDate">8 МАЯ 23:59</div>
+<div class="dim-overlay" id="dimOverlay"></div>
 
 <script>
-    // ---------------------- ТАЙМЕР ----------------------
-    function getTargetDate() {
-        let target = new Date(2026, 4, 8, 23, 59, 0);
-        if (target <= new Date()) {
-            target.setFullYear(target.getFullYear() + 1);
-        }
-        return target;
-    }
-
-    const targetDate = getTargetDate();
-
-    function updateTimer() {
-        const now = Date.now();
-        const diff = targetDate.getTime() - now;
-
-        if (diff <= 0) {
-            document.getElementById('countdown').innerHTML = "00 : 00 : 00 : 00";
-            return;
+    (function() {
+        // ========== ТАЙМЕР ==========
+        function getTargetDate() {
+            let target = new Date(2026, 4, 8, 23, 59, 0);
+            if (target <= new Date()) {
+                target.setFullYear(target.getFullYear() + 1);
+            }
+            return target;
         }
 
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (3600000)) / (1000 * 60));
-        const seconds = Math.floor((diff % (60000)) / 1000);
-        const formatted = `${days.toString().padStart(2, '0')} : ${hours.toString().padStart(2, '0')} : ${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
-        document.getElementById('countdown').innerHTML = formatted;
-    }
+        const targetDate = getTargetDate();
+        const timerEl = document.getElementById('countdown');
+        const mainTextEl = document.getElementById('mainGlitch');
+        const ORIGINAL_TEXT = "ТИК-ТАК";
 
-    updateTimer();
-    let timerInterval = setInterval(updateTimer, 1000);
+        function updateTimer() {
+            const now = Date.now();
+            const diff = targetDate.getTime() - now;
 
-    // ---------------------- ГЛИТЧИ ----------------------
-    const timerEl = document.getElementById('countdown');
-    const mainTextEl = document.getElementById('mainGlitch');
+            if (diff <= 0) {
+                timerEl.innerHTML = "00 : 00 : 00 : 00";
+                return;
+            }
 
-    function applyGlitch() {
-        timerEl.classList.add('glitch-active');
-        mainTextEl.classList.add('glitch-active');
-        setTimeout(() => {
-            timerEl.classList.remove('glitch-active');
-            mainTextEl.classList.remove('glitch-active');
-        }, 500);
-    }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (3600000)) / (1000 * 60));
+            const seconds = Math.floor((diff % (60000)) / 1000);
+            timerEl.innerHTML = `${days.toString().padStart(2,'0')} : ${hours.toString().padStart(2,'0')} : ${minutes.toString().padStart(2,'0')} : ${seconds.toString().padStart(2,'0')}`;
+        }
 
-    // глитч каждые 5 секунд
-    setInterval(() => {
-        applyGlitch();
-    }, 5000);
+        updateTimer();
+        let timerInterval = setInterval(updateTimer, 1000);
 
-    // глитч по клавише G
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'g' || e.key === 'G') {
-            applyGlitch();
-            timerEl.style.transform = 'translate(2px, -1px)';
-            mainTextEl.style.transform = 'translate(-1px, 1px)';
-            setTimeout(() => {
-                timerEl.style.transform = '';
+        // ========== ТЕКСТОВЫЕ ГЛЮКИ (ТИК-ТАК → Т1К-Т4К и т.д.) ==========
+        const glitchedVariants = [
+            "Т1К-Т4К",
+            "Т!К-Т@К",
+            "ТИХ-ТАХ",
+            "ТИК-Т??",
+            "*******",
+            "Тік-Так",
+            "TIK-TAK",
+            "ТИК-ГАК",
+            "3ИК-ТАК",
+            "ТИК-Т0К",
+            "Т!К-ТАК",
+            "ТИК-ТАК?",
+            "Т/К-Т\\К",
+            "ТИК_ТАК",
+            "Т1К-ТАК"
+        ];
+
+        let textGlitchTimeout = null;
+
+        function applyTextGlitch() {
+            // выбираем случайный искажённый вариант
+            const randomVariant = glitchedVariants[Math.floor(Math.random() * glitchedVariants.length)];
+            mainTextEl.textContent = randomVariant;
+            
+            // небольшой дополнительный визуальный глитч
+            mainTextEl.style.transform = 'skew(2deg, 1deg)';
+            mainTextEl.style.textShadow = '2px 0 red, -2px 0 blue';
+            
+            // через 600 мс возвращаем оригинал
+            if (textGlitchTimeout) clearTimeout(textGlitchTimeout);
+            textGlitchTimeout = setTimeout(() => {
+                mainTextEl.textContent = ORIGINAL_TEXT;
                 mainTextEl.style.transform = '';
-            }, 200);
+                mainTextEl.style.textShadow = '';
+            }, 600);
         }
-    });
 
-    // ---------------------- ИНВЕРСИЯ ЦВЕТОВ ----------------------
-    setInterval(() => {
-        document.body.style.filter = 'invert(1)';
-        setTimeout(() => {
-            document.body.style.filter = '';
-        }, 250);
-    }, 10000);
+        // текстовый глюк каждые 12 секунд (плюс-минус случайность)
+        setInterval(() => {
+            if (Math.random() < 0.7) { // 70% шанс срабатывания
+                applyTextGlitch();
+            }
+        }, 12000);
 
-    // ---------------------- ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР ----------------------
-    let frozen = false;
-    let frozenTimeout;
-
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' && !frozen) {
-            e.preventDefault();
-            frozen = true;
-            clearInterval(timerInterval);
-            // визуальный намёк на заморозку
-            timerEl.style.opacity = '0.5';
-            frozenTimeout = setTimeout(() => {
-                timerInterval = setInterval(updateTimer, 1000);
-                timerEl.style.opacity = '1';
-                frozen = false;
-            }, 5000);
+        // ========== ВИЗУАЛЬНЫЙ ГЛИТЧ (дёрганье, тени) ==========
+        function applyVisualGlitch() {
+            timerEl.classList.add('glitch-active');
+            mainTextEl.classList.add('glitch-active');
+            
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(50);
+            }
+            
+            timerEl.style.filter = 'blur(1px)';
+            mainTextEl.style.filter = 'blur(1px)';
+            
+            setTimeout(() => {
+                timerEl.classList.remove('glitch-active');
+                mainTextEl.classList.remove('glitch-active');
+                timerEl.style.filter = '';
+                mainTextEl.style.filter = '';
+            }, 500);
         }
-    });
 
-    // ---------------------- ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ ----------------------
-    window.addEventListener('beforeunload', (e) => {
-        e.preventDefault();
-        e.returnValue = '';
-    });
+        // визуальный глитч каждые 5 секунд
+        setInterval(() => {
+            applyVisualGlitch();
+        }, 5000);
 
-    // ---------------------- ШЁПОТЫ (ПОЛУПРОЗРАЧНЫЕ ФРАЗЫ) ----------------------
-    const phrases = [
-        "шанс был", "я ждал", "я хотел", "опоздала", 
-        "30 минут", "3.5 часа", "ты обещала", "тишина", 
-        "я помню", "последний шанс", "не пришла", "пустота",
-        "я здесь", "а ты где?", "время вышло", "никогда не узнаешь"
-    ];
+        // комбинированный глитч (и текст, и визуал) по клавише G или тройному тапу
+        function fullGlitch() {
+            applyVisualGlitch();
+            applyTextGlitch();
+        }
 
-    const container = document.getElementById('whispersContainer');
-
-    function createWhisper(text) {
-        const span = document.createElement('div');
-        span.className = 'whisper';
-        span.textContent = text;
-
-        const randLeft = Math.random() * 90;
-        const randTop = Math.random() * 90;
-        const randDuration = 8 + Math.random() * 12;
-        const randDelay = Math.random() * 15;
-
-        span.style.left = randLeft + '%';
-        span.style.top = randTop + '%';
-        span.style.animationDuration = randDuration + 's';
-        span.style.animationDelay = randDelay + 's';
-        span.style.fontSize = (1 + Math.random() * 1.8) + 'rem';
-
-        container.appendChild(span);
-
-        span.addEventListener('animationend', () => {
-            span.remove();
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'g' || e.key === 'G') {
+                fullGlitch();
+                timerEl.style.transform = 'translate(3px, -2px)';
+                mainTextEl.style.transform = 'translate(-2px, 2px)';
+                setTimeout(() => {
+                    timerEl.style.transform = '';
+                    if (!mainTextEl.textContent.includes('ТИК-ТАК')) return;
+                    mainTextEl.style.transform = '';
+                }, 200);
+            }
         });
-    }
+        
+        // тройной тап по экрану для телефонов
+        let tapCount = 0;
+        let tapTimer;
+        document.body.addEventListener('touchstart', (e) => {
+            tapCount++;
+            if (tapCount === 3) {
+                fullGlitch();
+                tapCount = 0;
+                clearTimeout(tapTimer);
+            }
+            clearTimeout(tapTimer);
+            tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+        });
 
-    setInterval(() => {
-        const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-        createWhisper(randomPhrase);
-    }, 2500);
+        // ========== ИНВЕРСИЯ ЦВЕТОВ ==========
+        setInterval(() => {
+            document.documentElement.style.filter = 'invert(1)';
+            document.body.style.transform = 'translateZ(0)';
+            setTimeout(() => {
+                document.documentElement.style.filter = '';
+                document.body.style.transform = '';
+            }, 400);
+        }, 10000);
 
-    for (let i = 0; i < 8; i++) {
-        setTimeout(() => {
+        // ========== ПРОБЕЛ ЗАМОРАЖИВАЕТ ТАЙМЕР ==========
+        let frozen = false;
+        let frozenTimeout;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !frozen) {
+                e.preventDefault();
+                frozen = true;
+                clearInterval(timerInterval);
+                timerEl.style.opacity = '0.4';
+                timerEl.style.filter = 'blur(2px)';
+                frozenTimeout = setTimeout(() => {
+                    timerInterval = setInterval(updateTimer, 1000);
+                    timerEl.style.opacity = '1';
+                    timerEl.style.filter = '';
+                    frozen = false;
+                }, 5000);
+            }
+        });
+
+        // ========== ПРЕДУПРЕЖДЕНИЕ ПРИ ЗАКРЫТИИ ==========
+        window.addEventListener('beforeunload', (e) => {
+            const message = "Таймер продолжает тикать. Ты уверена?";
+            e.preventDefault();
+            e.returnValue = message;
+            return message;
+        });
+
+        // ========== СКРЫТОЕ СООБЩЕНИЕ ПРИ КЛИКЕ НА ДАТУ ==========
+        const footer = document.getElementById('footerDate');
+        footer.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alert("🔪 Ты здесь. Тик-так.");
+        });
+
+        // ========== ШЁПОТЫ ==========
+        const phrases = [
+            "шанс был", "я ждал", "я хотел", "опоздала", 
+            "30 минут", "3.5 часа", "ты обещала", "тишина", 
+            "я помню", "последний шанс", "не пришла", "пустота",
+            "я здесь", "а ты где?", "время вышло", "никогда не узнаешь",
+            "Тик-так", "ты пропала", "я не забыл"
+        ];
+
+        const container = document.getElementById('whispersContainer');
+
+        function createWhisper(text) {
+            const span = document.createElement('div');
+            span.className = 'whisper';
+            span.textContent = text;
+            span.style.left = Math.random() * 90 + '%';
+            span.style.top = Math.random() * 90 + '%';
+            const size = 1.2 + Math.random() * 2.2;
+            span.style.fontSize = size + 'rem';
+            span.style.animationDuration = (8 + Math.random() * 10) + 's';
+            span.style.animationDelay = Math.random() * 3 + 's';
+            span.style.color = `rgba(255, 255, 255, ${0.2 + Math.random() * 0.3})`;
+            container.appendChild(span);
+            span.addEventListener('animationend', () => span.remove());
+        }
+
+        setInterval(() => {
             const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
             createWhisper(randomPhrase);
-        }, i * 400);
-    }
+        }, 1500);
+        
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+                const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+                createWhisper(randomPhrase);
+            }, i * 200);
+        }
+
+        // ========== ЗАТЕМНЕНИЕ ПРИ БЕЗДЕЙСТВИИ ==========
+        const dimOverlay = document.getElementById('dimOverlay');
+        let inactivityTimer;
+        
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            dimOverlay.classList.remove('active');
+            inactivityTimer = setTimeout(() => {
+                dimOverlay.classList.add('active');
+            }, 30000);
+        }
+        
+        ['mousemove', 'click', 'touchstart', 'keydown'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer);
+        });
+        resetInactivityTimer();
+    })();
 </script>
 </body>
 </html>
